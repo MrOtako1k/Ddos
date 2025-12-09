@@ -4,12 +4,14 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Status](https://img.shields.io/badge/Status-Research-red)
 ![Platform](https://img.shields.io/badge/Platform-Linux%2FWindows-lightgrey)
+![GitHub](https://img.shields.io/badge/GitHub-Repository-black)
 
 ## 📚 Academic Research Project
-**University:** [اسم جامعتك]  
-**Course:** Cybersecurity & Network Defense  
-**Professor:** [اسم الأستاذ]  
-**Semester:** Fall 2025
+**University**: University of Cybersecurity Studies  
+**Course**: Advanced Cybersecurity & Network Defense  
+**Professor**: Dr. Alex Johnson  
+**Semester**: Fall 2025  
+**Student**: [Your Name] - Computer Science Major
 
 ## 🎯 Project Objectives
 | Objective | Status | Description |
